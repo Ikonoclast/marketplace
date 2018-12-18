@@ -11,7 +11,6 @@ import { Viewport, Bounds, TYPES } from '../shared/map'
 import { Map as MapRenderer } from '../shared/map/render'
 
 const { minX, maxX, minY, maxY } = Bounds.getBounds()
-const MAX_AREA = 15000
 
 export class MapRouter {
   constructor(app) {
@@ -146,7 +145,7 @@ export class MapRouter {
     res,
     { width, height, size, center, selected, skipPublications, zoom, pan }
   ) {
-    const { nw, se, area } = Viewport.getDimensions({
+    const { nw, se } = Viewport.getDimensions({
       width,
       height,
       center,
@@ -155,14 +154,6 @@ export class MapRouter {
       pan,
       padding: 1
     })
-
-    if (area > MAX_AREA) {
-      res.status(400)
-      res.send(
-        `Too many parcels. You are trying to render ${area} parcels and the maximum allowed is ${MAX_AREA}.`
-      )
-      return
-    }
 
     try {
       const stream = await this.getStream({
@@ -224,7 +215,7 @@ export class MapRouter {
       y: this.getInteger(req, 'y', minY, maxY, 0),
       width: this.getInteger(req, 'width', 32, 1024, 500),
       height: this.getInteger(req, 'height', 32, 1024, 500),
-      size: this.getInteger(req, 'size', 5, 40, 10),
+      size: this.getInteger(req, 'size', 1, 40, 10),
       center: this.getCoords(req, 'center', { x: 0, y: 0 }),
       selected: this.getCoordsArray(req, 'selected', []),
       skipPublications: !this.getBoolean(req, 'publications', false) // Mind the negation here
